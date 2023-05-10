@@ -94,9 +94,9 @@ function draw_graph(canvas_id, file)
 function render()
 {
     m_r.rows[0].x =  Math.cos(z_r);
-    m_r.rows[0].y = -Math.sin(z_r);
-    m_r.rows[1].x =  Math.sin(z_r);
-    m_r.rows[1].y =  Math.cos(z_r);
+    m_r.rows[0].z =  Math.sin(z_r);
+    m_r.rows[2].x = -Math.sin(z_r);
+    m_r.rows[2].z =  Math.cos(z_r);
 
     let p0 = m_r.dot(new vec4(points[0].x, points[0].y, 0.0, 1.0));
     let p1 = m_r.dot(new vec4(points[1].x, points[1].y, 0.0, 1.0));
@@ -119,5 +119,5 @@ function render()
 
     window.requestAnimationFrame(render);
 
-    z_r += 0.0001;
+    z_r += 0.001;
 }
