@@ -46,7 +46,17 @@ class mat4
         ];
     }
 
-    dot(v)
+    transpose()
+    {
+        let m_t = new mat4();
+        m_t.rows[0] = new vec4(this.rows[0].x, this.rows[1].x, this.rows[2].x, this.rows[3].x);
+        m_t.rows[1] = new vec4(this.rows[0].y, this.rows[1].y, this.rows[2].y, this.rows[3].y);
+        m_t.rows[2] = new vec4(this.rows[0].z, this.rows[1].z, this.rows[2].z, this.rows[3].z);
+        m_t.rows[3] = new vec4(this.rows[0].w, this.rows[1].w, this.rows[2].w, this.rows[3].w);
+        return m_t;
+    }
+
+    dot_v(v)
     {
         return new vec4(
             this.rows[0].dot(v),
@@ -55,15 +65,43 @@ class mat4
             this.rows[3].dot(v)
         )
     }
+
+    dot_m(m)
+    {
+        let m_r = new mat4();
+        let m_t = m.transpose();
+
+        m_r.rows[0].x = this.rows[0].dot(m_t.rows[0]);
+        m_r.rows[0].y = this.rows[0].dot(m_t.rows[1]);
+        m_r.rows[0].z = this.rows[0].dot(m_t.rows[2]);
+        m_r.rows[0].w = this.rows[0].dot(m_t.rows[3]);
+
+        m_r.rows[1].x = this.rows[1].dot(m_t.rows[0]);
+        m_r.rows[1].y = this.rows[1].dot(m_t.rows[1]);
+        m_r.rows[1].z = this.rows[1].dot(m_t.rows[2]);
+        m_r.rows[1].w = this.rows[1].dot(m_t.rows[3]);
+
+        m_r.rows[2].x = this.rows[2].dot(m_t.rows[0]);
+        m_r.rows[2].y = this.rows[2].dot(m_t.rows[1]);
+        m_r.rows[2].z = this.rows[2].dot(m_t.rows[2]);
+        m_r.rows[2].w = this.rows[2].dot(m_t.rows[3]);
+
+        m_r.rows[3].x = this.rows[3].dot(m_t.rows[0]);
+        m_r.rows[3].y = this.rows[3].dot(m_t.rows[1]);
+        m_r.rows[3].z = this.rows[3].dot(m_t.rows[2]);
+        m_r.rows[3].w = this.rows[3].dot(m_t.rows[3]);
+
+        return m_r;
+    }
 }
 
-let   canvas = null;
-let   ctx    = null;
-const points = [];
+let   canvas   = null;
+let   ctx      = null;
+const vertices = [];
 
-let z_r      = 0.0;
-let m_r      = new mat4();
-let m_t      = new mat4();
+let z_r        = 0.0;
+let m_r        = new mat4();
+let m_t        = new mat4();
 
 // todo, maybe change this to init, and add a register or something function
 function draw_graph(canvas_id, file)
@@ -78,11 +116,15 @@ function draw_graph(canvas_id, file)
 
     ctx = canvas.getContext("2d");
 
-    points.push(
-        new vec3(-radius, -radius, 0.0),
-        new vec3(+radius, -radius, 0.0),
-        new vec3(+radius, +radius, 0.0),
-        new vec3(-radius, +radius, 0.0)
+    vertices.push(
+        new vec4(-radius, -radius, +radius, 1.0),
+        new vec4(+radius, -radius, +radius, 1.0),
+        new vec4(+radius, +radius, +radius, 1.0),
+        new vec4(-radius, +radius, +radius, 1.0),
+        new vec4(-radius, -radius, -radius, 1.0),
+        new vec4(+radius, -radius, -radius, 1.0),
+        new vec4(+radius, +radius, -radius, 1.0),
+        new vec4(-radius, +radius, -radius, 1.0)
     )
 
     m_t.rows[0].w = (width  / 2.0);
@@ -98,23 +140,41 @@ function render()
     m_r.rows[2].x = -Math.sin(z_r);
     m_r.rows[2].z =  Math.cos(z_r);
 
-    let p0 = m_r.dot(new vec4(points[0].x, points[0].y, 0.0, 1.0));
-    let p1 = m_r.dot(new vec4(points[1].x, points[1].y, 0.0, 1.0));
-    let p2 = m_r.dot(new vec4(points[2].x, points[2].y, 0.0, 1.0));
-    let p3 = m_r.dot(new vec4(points[3].x, points[3].y, 0.0, 1.0));  
+    //let m = m_r.dot_m(m_t);
+    let m = m_t.dot_m(m_r);
 
-    p0 = m_t.dot(p0);
-    p1 = m_t.dot(p1);
-    p2 = m_t.dot(p2);
-    p3 = m_t.dot(p3);
+    console.log(m);
+    
+    let transformed_vertices = Array(vertices.length);
+
+    for (let i = 0; i < transformed_vertices.length; i++)
+    {
+        transformed_vertices[i] = m.dot_v(vertices[i]);
+    }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
-    ctx.moveTo(p0.x, p0.y);
-    ctx.lineTo(p1.x, p1.y);
-    ctx.lineTo(p2.x, p2.y);
-    ctx.lineTo(p3.x, p3.y);
-    ctx.lineTo(p0.x, p0.y);
+    ctx.moveTo(transformed_vertices[0].x, transformed_vertices[0].y);
+    ctx.lineTo(transformed_vertices[1].x, transformed_vertices[1].y);
+    ctx.lineTo(transformed_vertices[2].x, transformed_vertices[2].y);
+    ctx.lineTo(transformed_vertices[3].x, transformed_vertices[3].y);
+    ctx.lineTo(transformed_vertices[0].x, transformed_vertices[0].y);
+
+    ctx.moveTo(transformed_vertices[4].x, transformed_vertices[4].y);
+    ctx.lineTo(transformed_vertices[5].x, transformed_vertices[5].y);
+    ctx.lineTo(transformed_vertices[6].x, transformed_vertices[6].y);
+    ctx.lineTo(transformed_vertices[7].x, transformed_vertices[7].y);
+    ctx.lineTo(transformed_vertices[4].x, transformed_vertices[4].y);
+
+    ctx.moveTo(transformed_vertices[0].x, transformed_vertices[0].y);
+    ctx.lineTo(transformed_vertices[4].x, transformed_vertices[4].y);
+    ctx.moveTo(transformed_vertices[3].x, transformed_vertices[3].y);
+    ctx.lineTo(transformed_vertices[7].x, transformed_vertices[7].y);
+    ctx.moveTo(transformed_vertices[1].x, transformed_vertices[1].y);
+    ctx.lineTo(transformed_vertices[5].x, transformed_vertices[5].y);
+    ctx.moveTo(transformed_vertices[2].x, transformed_vertices[2].y);
+    ctx.lineTo(transformed_vertices[6].x, transformed_vertices[6].y);
+
     ctx.stroke();
 
     window.requestAnimationFrame(render);
