@@ -56,7 +56,7 @@ class mat4
         return m_t;
     }
 
-    dot_v(v)
+    dot(v)
     {
         return new vec4(
             this.rows[0].dot(v),
@@ -66,7 +66,7 @@ class mat4
         )
     }
 
-    dot_m(m)
+    mul(m)
     {
         let m_r = new mat4();
         let m_t = m.transpose();
@@ -140,8 +140,8 @@ function render()
     m_r.rows[2].x = -Math.sin(z_r);
     m_r.rows[2].z =  Math.cos(z_r);
 
-    //let m = m_r.dot_m(m_t);
-    let m = m_t.dot_m(m_r);
+    //let m = m_r.mul(m_t);
+    let m = m_t.mul(m_r);
 
     console.log(m);
     
@@ -149,7 +149,7 @@ function render()
 
     for (let i = 0; i < transformed_vertices.length; i++)
     {
-        transformed_vertices[i] = m.dot_v(vertices[i]);
+        transformed_vertices[i] = m.dot(vertices[i]);
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
