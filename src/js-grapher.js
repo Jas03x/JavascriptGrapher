@@ -100,15 +100,16 @@ let   ctx      = null;
 const vertices = [];
 
 let z_r        = 0.0;
-let m_r        = new mat4();
-let m_t        = new mat4();
+let m_r        = new mat4(); // rotation matrix
+let m_t        = new mat4(); // translation matrix
+let m_p        = new mat4(); // projection matrix
 
 // todo, maybe change this to init, and add a register or something function
 function draw_graph(canvas_id, file)
 {
     let width  = window.innerWidth;
     let height = window.innerHeight;
-    let radius = 100.0;
+    let radius = 1.0;
 
     canvas = document.getElementById(canvas_id);
     canvas.width = width;
@@ -127,8 +128,20 @@ function draw_graph(canvas_id, file)
         new vec4(-radius, +radius, -radius, 1.0)
     )
 
-    m_t.rows[0].w = (width  / 2.0);
-    m_t.rows[1].w = (height / 2.0);
+    m_t.rows[0].w = 0.0;
+    m_t.rows[1].w = 0.0;
+    m_t.rows[2].w = -100.0;
+
+    let fov = 1.0 / Math.tan(Math.PI / 4.0);
+    let aspect_ratio = width / height;
+    let z_near = 0.1;
+    let z_far = 10.0;
+
+    m_p.rows[0].x = fov / aspect_ratio;
+    m_p.rows[1].y = fov;
+    m_p.rows[2].z = z_far / (z_far - z_near);
+    m_p.rows[2].w = 1.0;
+    m_p.rows[3].z = -(z_far / (z_far - z_near)) * z_near;
 
     window.requestAnimationFrame(render);
 }
@@ -150,6 +163,21 @@ function render()
     for (let i = 0; i < transformed_vertices.length; i++)
     {
         transformed_vertices[i] = m.dot(vertices[i]);
+    }
+
+    for (let i = 0; i < transformed_vertices.length; i++)
+    {
+        transformed_vertices[i] = m_p.dot(transformed_vertices[i]);
+    }
+
+    for (let i = 0; i < transformed_vertices.length; i++)
+    {
+        transformed_vertices[i].x = (transformed_vertices[i].x + 1.0) * 0.5 * canvas.width;
+        transformed_vertices[i].y = (transformed_vertices[i].y + 1.0) * 0.5 * canvas.height;
+
+        transformed_vertices[i].x /= transformed_vertices[i].w;
+        transformed_vertices[i].y /= transformed_vertices[i].w;
+        transformed_vertices[i].z /= transformed_vertices[i].w;
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
