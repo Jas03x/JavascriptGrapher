@@ -63,7 +63,7 @@ class mat4
             this.rows[1].dot(v),
             this.rows[2].dot(v),
             this.rows[3].dot(v)
-        )
+        );
     }
 
     mul(m)
@@ -133,7 +133,8 @@ function draw_graph(canvas_id, file)
     m_t.rows[2].w = 5.0;
 
     let fov = 1.0 / Math.tan(Math.PI / 4.0);
-    let aspect_ratio = height / width;
+    // let aspect_ratio = height / width;
+    let aspect_ratio = width / height;
     let z_near = 0.1;
     let z_far = 10.0;
 
