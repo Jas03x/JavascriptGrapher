@@ -109,7 +109,7 @@ function draw_graph(canvas_id, file)
 {
     let width  = window.innerWidth;
     let height = window.innerHeight;
-    let radius = 1.0;
+    let radius = 0.5;
 
     canvas = document.getElementById(canvas_id);
     canvas.width = width;
@@ -118,30 +118,38 @@ function draw_graph(canvas_id, file)
     ctx = canvas.getContext("2d");
 
     vertices.push(
-        new vec4(-radius, -radius, +radius, 1.0),
-        new vec4(+radius, -radius, +radius, 1.0),
-        new vec4(+radius, +radius, +radius, 1.0),
-        new vec4(-radius, +radius, +radius, 1.0),
-        new vec4(-radius, -radius, -radius, 1.0),
-        new vec4(+radius, -radius, -radius, 1.0),
-        new vec4(+radius, +radius, -radius, 1.0),
-        new vec4(-radius, +radius, -radius, 1.0)
+        new vec3(-radius, -radius, +radius),
+        new vec3(+radius, -radius, +radius),
+        new vec3(+radius, +radius, +radius),
+        new vec3(-radius, +radius, +radius),
+        new vec3(-radius, -radius, -radius),
+        new vec3(+radius, -radius, -radius),
+        new vec3(+radius, +radius, -radius),
+        new vec3(-radius, +radius, -radius)
     )
 
     m_t.rows[0].w = 0.0;
     m_t.rows[1].w = 0.0;
-    m_t.rows[2].w = -100.0;
+    m_t.rows[2].w = 5.0;
 
     let fov = 1.0 / Math.tan(Math.PI / 4.0);
-    let aspect_ratio = width / height;
+    let aspect_ratio = height / width;
     let z_near = 0.1;
     let z_far = 10.0;
 
+    /*
     m_p.rows[0].x = fov / aspect_ratio;
     m_p.rows[1].y = fov;
     m_p.rows[2].z = z_far / (z_far - z_near);
     m_p.rows[2].w = 1.0;
     m_p.rows[3].z = -(z_far / (z_far - z_near)) * z_near;
+    */
+
+    m_p.rows[0].x = fov / aspect_ratio;
+    m_p.rows[1].y = fov;
+    m_p.rows[2].z = z_far / (z_far - z_near);
+    m_p.rows[2].w = -(z_far / (z_far - z_near)) * z_near;
+    m_p.rows[3].z = 1.0;
 
     window.requestAnimationFrame(render);
 }
@@ -162,12 +170,12 @@ function render()
 
     for (let i = 0; i < transformed_vertices.length; i++)
     {
-        transformed_vertices[i] = m.dot(vertices[i]);
+        transformed_vertices[i] = m.dot(new vec4(vertices[i].x, vertices[i].y, vertices[i].z, 1.0));
     }
 
     for (let i = 0; i < transformed_vertices.length; i++)
     {
-        transformed_vertices[i] = m_p.dot(transformed_vertices[i]);
+        transformed_vertices[i] = m_p.dot(new vec4(transformed_vertices[i].x, transformed_vertices[i].y, transformed_vertices[i].z, 1.0));
     }
 
     for (let i = 0; i < transformed_vertices.length; i++)
