@@ -130,10 +130,9 @@ function draw_graph(canvas_id, file)
 
     m_t.rows[0].w = 0.0;
     m_t.rows[1].w = 0.0;
-    m_t.rows[2].w = 0.0;
+    m_t.rows[2].w = 15.0;
 
     let fov = 1.0 / Math.tan(Math.PI / 4.0);
-    // let aspect_ratio = height / width;
     let aspect_ratio = width / height;
     let z_near = 0.10;
     let z_far  = 10.0;
@@ -141,8 +140,11 @@ function draw_graph(canvas_id, file)
     m_p.rows[0].x = fov / aspect_ratio;
     m_p.rows[1].y = fov;
     m_p.rows[2].z = z_far / (z_far - z_near);
-    m_p.rows[2].w = 1.0;
-    m_p.rows[3].z = -(z_far / (z_far - z_near)) * z_near;
+    m_p.rows[2].w = -(z_far / (z_far - z_near)) * z_near;
+    m_p.rows[3].z = 1.0;
+    m_p.rows[3].w = 0.0;
+
+    console.log(m_p);
 
     window.requestAnimationFrame(render);
 }
