@@ -126,31 +126,23 @@ function draw_graph(canvas_id, file)
         new vec3(+radius, -radius, -radius),
         new vec3(+radius, +radius, -radius),
         new vec3(-radius, +radius, -radius)
-    )
+    );
 
     m_t.rows[0].w = 0.0;
     m_t.rows[1].w = 0.0;
-    m_t.rows[2].w = 5.0;
+    m_t.rows[2].w = 0.0;
 
     let fov = 1.0 / Math.tan(Math.PI / 4.0);
     // let aspect_ratio = height / width;
     let aspect_ratio = width / height;
-    let z_near = 0.1;
-    let z_far = 10.0;
+    let z_near = 0.10;
+    let z_far  = 10.0;
 
-    /*
     m_p.rows[0].x = fov / aspect_ratio;
     m_p.rows[1].y = fov;
     m_p.rows[2].z = z_far / (z_far - z_near);
     m_p.rows[2].w = 1.0;
     m_p.rows[3].z = -(z_far / (z_far - z_near)) * z_near;
-    */
-
-    m_p.rows[0].x = fov / aspect_ratio;
-    m_p.rows[1].y = fov;
-    m_p.rows[2].z = z_far / (z_far - z_near);
-    m_p.rows[2].w = -(z_far / (z_far - z_near)) * z_near;
-    m_p.rows[3].z = 1.0;
 
     window.requestAnimationFrame(render);
 }
@@ -164,8 +156,6 @@ function render()
 
     //let m = m_r.mul(m_t);
     let m = m_t.mul(m_r);
-
-    console.log(m);
     
     let transformed_vertices = Array(vertices.length);
 
@@ -216,5 +206,5 @@ function render()
 
     window.requestAnimationFrame(render);
 
-    z_r += 0.001;
+    // z_r += 0.001;
 }
