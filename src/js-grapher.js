@@ -130,7 +130,7 @@ function draw_graph(canvas_id, file)
 
     m_t.rows[0].w = 0.0;
     m_t.rows[1].w = 0.0;
-    m_t.rows[2].w = 15.0;
+    m_t.rows[2].w = 5.0;
 
     let fov = 1.0 / Math.tan(Math.PI / 4.0);
     let aspect_ratio = width / height;
@@ -173,12 +173,12 @@ function render()
 
     for (let i = 0; i < transformed_vertices.length; i++)
     {
-        transformed_vertices[i].x = (transformed_vertices[i].x + 1.0) * 0.5 * canvas.width;
-        transformed_vertices[i].y = (transformed_vertices[i].y + 1.0) * 0.5 * canvas.height;
-
         transformed_vertices[i].x /= transformed_vertices[i].w;
         transformed_vertices[i].y /= transformed_vertices[i].w;
         transformed_vertices[i].z /= transformed_vertices[i].w;
+
+        transformed_vertices[i].x = (transformed_vertices[i].x + 1.0) * 0.5 * canvas.width;
+        transformed_vertices[i].y = (transformed_vertices[i].y + 1.0) * 0.5 * canvas.height;
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -208,5 +208,5 @@ function render()
 
     window.requestAnimationFrame(render);
 
-    // z_r += 0.001;
+    z_r += 0.001;
 }
