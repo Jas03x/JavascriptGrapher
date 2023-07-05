@@ -93,120 +93,66 @@ class mat4
 
         return m_r;
     }
+
+    static translate(x, y, z)
+    {
+        let m = new mat4();
+        m.rows[0].w = x;
+        m.rows[1].w = y;
+        m.rows[2].w = z;
+        return m;
+    }
+
+    static project(aspect_ratio, fov, z_near, z_far)
+    {
+        let m = new mat4();
+        let inv_tan_fov = 1.0 / Math.tan(fov);
+        m.rows[0].x = inv_tan_fov / aspect_ratio;
+        m.rows[1].y = inv_tan_fov;
+        m.rows[2].z = z_far / (z_far - z_near);
+        m.rows[2].w = -(z_far / (z_far - z_near)) * z_near;
+        m.rows[3].z = 1.0;
+        m.rows[3].w = 0.0;
+        return m;
+    }
 }
 
-let   canvas   = null;
-let   ctx      = null;
-const vertices = [];
+let graph_callback_array = [];
+let graph_animation_frame_requested = false;
 
-let z_r        = 0.0;
-let m_r        = new mat4(); // rotation matrix
-let m_t        = new mat4(); // translation matrix
-let m_p        = new mat4(); // projection matrix
-
-// todo, maybe change this to init, and add a register or something function
-function draw_graph(canvas_id, file)
+class graph_context
 {
-    let width  = window.innerWidth;
-    let height = window.innerHeight;
-    let radius = 0.5;
+    constructor(canvas_id)
+    {
+        this.canvas = document.getElementById(canvas_id);
+        this.context = canvas.getContext("2d");
+        this.width = this.canvas.width;
+        this.height = this.canvas.height;
+    }
 
-    canvas = document.getElementById(canvas_id);
-    canvas.width = width;
-    canvas.height = height;
+    set_draw_callback(on_draw)
+    {
+        graph_callback_array.push([on_draw, this]);
 
-    ctx = canvas.getContext("2d");
-
-    vertices.push(
-        new vec3(-radius, -radius, +radius),
-        new vec3(+radius, -radius, +radius),
-        new vec3(+radius, +radius, +radius),
-        new vec3(-radius, +radius, +radius),
-        new vec3(-radius, -radius, -radius),
-        new vec3(+radius, -radius, -radius),
-        new vec3(+radius, +radius, -radius),
-        new vec3(-radius, +radius, -radius)
-    );
-
-    m_t.rows[0].w = 0.0;
-    m_t.rows[1].w = 0.0;
-    m_t.rows[2].w = 5.0;
-
-    let fov = 1.0 / Math.tan(Math.PI / 4.0);
-    let aspect_ratio = width / height;
-    let z_near = 0.10;
-    let z_far  = 10.0;
-
-    m_p.rows[0].x = fov / aspect_ratio;
-    m_p.rows[1].y = fov;
-    m_p.rows[2].z = z_far / (z_far - z_near);
-    m_p.rows[2].w = -(z_far / (z_far - z_near)) * z_near;
-    m_p.rows[3].z = 1.0;
-    m_p.rows[3].w = 0.0;
-
-    console.log(m_p);
-
-    window.requestAnimationFrame(render);
+        if (!graph_animation_frame_requested)
+        {
+            window.requestAnimationFrame(render_graphs);
+            graph_animation_frame_requested = true;
+        }
+    }
 }
 
-function render()
+function initialize_graph_context(canvas_id)
 {
-    m_r.rows[0].x =  Math.cos(z_r);
-    m_r.rows[0].z =  Math.sin(z_r);
-    m_r.rows[2].x = -Math.sin(z_r);
-    m_r.rows[2].z =  Math.cos(z_r);
+    return new graph_context(canvas_id);
+}
 
-    //let m = m_r.mul(m_t);
-    let m = m_t.mul(m_r);
-    
-    let transformed_vertices = Array(vertices.length);
-
-    for (let i = 0; i < transformed_vertices.length; i++)
+function render_graphs()
+{
+    for (let i = 0; i < graph_callback_array.length; i++)
     {
-        transformed_vertices[i] = m.dot(new vec4(vertices[i].x, vertices[i].y, vertices[i].z, 1.0));
+        graph_callback_array[i][0](graph_callback_array[i][1].context);
     }
 
-    for (let i = 0; i < transformed_vertices.length; i++)
-    {
-        transformed_vertices[i] = m_p.dot(new vec4(transformed_vertices[i].x, transformed_vertices[i].y, transformed_vertices[i].z, 1.0));
-    }
-
-    for (let i = 0; i < transformed_vertices.length; i++)
-    {
-        transformed_vertices[i].x /= transformed_vertices[i].w;
-        transformed_vertices[i].y /= transformed_vertices[i].w;
-        transformed_vertices[i].z /= transformed_vertices[i].w;
-
-        transformed_vertices[i].x = (transformed_vertices[i].x + 1.0) * 0.5 * canvas.width;
-        transformed_vertices[i].y = (transformed_vertices[i].y + 1.0) * 0.5 * canvas.height;
-    }
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath();
-    ctx.moveTo(transformed_vertices[0].x, transformed_vertices[0].y);
-    ctx.lineTo(transformed_vertices[1].x, transformed_vertices[1].y);
-    ctx.lineTo(transformed_vertices[2].x, transformed_vertices[2].y);
-    ctx.lineTo(transformed_vertices[3].x, transformed_vertices[3].y);
-    ctx.lineTo(transformed_vertices[0].x, transformed_vertices[0].y);
-
-    ctx.moveTo(transformed_vertices[4].x, transformed_vertices[4].y);
-    ctx.lineTo(transformed_vertices[5].x, transformed_vertices[5].y);
-    ctx.lineTo(transformed_vertices[6].x, transformed_vertices[6].y);
-    ctx.lineTo(transformed_vertices[7].x, transformed_vertices[7].y);
-    ctx.lineTo(transformed_vertices[4].x, transformed_vertices[4].y);
-
-    ctx.moveTo(transformed_vertices[0].x, transformed_vertices[0].y);
-    ctx.lineTo(transformed_vertices[4].x, transformed_vertices[4].y);
-    ctx.moveTo(transformed_vertices[3].x, transformed_vertices[3].y);
-    ctx.lineTo(transformed_vertices[7].x, transformed_vertices[7].y);
-    ctx.moveTo(transformed_vertices[1].x, transformed_vertices[1].y);
-    ctx.lineTo(transformed_vertices[5].x, transformed_vertices[5].y);
-    ctx.moveTo(transformed_vertices[2].x, transformed_vertices[2].y);
-    ctx.lineTo(transformed_vertices[6].x, transformed_vertices[6].y);
-
-    ctx.stroke();
-
-    window.requestAnimationFrame(render);
-
-    z_r += 0.001;
+    window.requestAnimationFrame(render_graphs);
 }
