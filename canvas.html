@@ -22,7 +22,7 @@
     <script type="text/javascript" src="./src/js-grapher.js">
         // init();
     </script>
-    <canvas id="canvas" width="100%;" height="100%"></canvas>
+    <canvas id="canvas"></canvas>
     <script type="text/javascript">
         graph_ctx = initialize_graph_context("canvas");
 
@@ -31,9 +31,6 @@
         let m_r = new mat4(); // rotation matrix
         let m_t = mat4.translate(0.0, 0.0, 5.0); // translation matrix
         let m_p = mat4.project(graph_ctx.width / graph_ctx.height, Math.PI / 4.0, 0.10, 10.0); // projection matrix
-
-        console.log(graph_ctx.width);
-        console.log(graph_ctx.height);
 
         const vertex_array = [
             new vec3(-radius, -radius, +radius),

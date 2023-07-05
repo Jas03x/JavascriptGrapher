@@ -125,7 +125,11 @@ class graph_context
     constructor(canvas_id)
     {
         this.canvas = document.getElementById(canvas_id);
+        this.canvas.width = this.canvas.getBoundingClientRect().width;
+        this.canvas.height = this.canvas.getBoundingClientRect().height;
+
         this.context = canvas.getContext("2d");
+
         this.width = this.canvas.width;
         this.height = this.canvas.height;
     }
