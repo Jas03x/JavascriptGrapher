@@ -128,7 +128,7 @@ class graph_context
         this.canvas.width = this.canvas.getBoundingClientRect().width;
         this.canvas.height = this.canvas.getBoundingClientRect().height;
 
-        this.context = canvas.getContext("2d");
+        this.context = this.canvas.getContext("2d");
 
         this.width = this.canvas.width;
         this.height = this.canvas.height;
