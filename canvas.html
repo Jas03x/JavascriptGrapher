@@ -14,7 +14,6 @@
         }
     </style>
     <script type="text/javascript" src="./src/js-grapher.js">
-        // init();
     </script>
     <canvas id="canvas"></canvas>
     <script type="text/javascript">
@@ -47,7 +46,6 @@
             m_r.rows[2].z =  Math.cos(z_r);
 
             let m = m_t.mul(m_r);
-            //m = m.mul(m_p);
             m = m_p.mul(m);
 
             for (let i = 0; i < vertex_buffer.length; i++)
@@ -63,7 +61,9 @@
             }
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
             ctx.beginPath();
+            
             ctx.moveTo(vertex_buffer[0].x, vertex_buffer[0].y);
             ctx.lineTo(vertex_buffer[1].x, vertex_buffer[1].y);
             ctx.lineTo(vertex_buffer[2].x, vertex_buffer[2].y);
