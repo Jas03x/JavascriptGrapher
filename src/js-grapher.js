@@ -6,6 +6,22 @@ class vec2
         this.x = x;
         this.y = y;
     }
+
+    dot(v)
+    {
+        return (this.x * v.x) + (this.y * v.y);
+    }
+
+    length()
+    {
+        return Math.sqrt((this.x * this.x) + (this.y * this.y));
+    }
+
+    static normalize(v)
+    {
+        var f = 1.0 / v.length();
+        return new vec2(v.x * f, v.y * f);
+    }
 }
 
 class vec3
@@ -15,6 +31,22 @@ class vec3
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    dot(v)
+    {
+        return (this.x * v.x) + (this.y * v.y) + (this.z * v.z);
+    }
+
+    length()
+    {
+        return Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
+    }
+
+    static normalize(v)
+    {
+        var f = 1.0 / v.length();
+        return new vec2(v.x * f, v.y * f, v.z * f);
     }
 }
 
@@ -32,6 +64,17 @@ class vec4
     {
         return (this.x * v.x) + (this.y * v.y) + (this.z * v.z) + (this.w * v.w);
     }
+
+    length()
+    {
+        return Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z) + (this.w * this.w));
+    }
+
+    static normalize(v)
+    {
+        var f = 1.0 / v.length();
+        return new vec2(v.x * f, v.y * f, v.z * f, v.w * f);
+    }
 }
 
 class mat4
@@ -48,7 +91,7 @@ class mat4
 
     transpose()
     {
-        let m_t = new mat4();
+        var m_t = new mat4();
         m_t.rows[0] = new vec4(this.rows[0].x, this.rows[1].x, this.rows[2].x, this.rows[3].x);
         m_t.rows[1] = new vec4(this.rows[0].y, this.rows[1].y, this.rows[2].y, this.rows[3].y);
         m_t.rows[2] = new vec4(this.rows[0].z, this.rows[1].z, this.rows[2].z, this.rows[3].z);
@@ -68,8 +111,8 @@ class mat4
 
     mul(m)
     {
-        let m_r = new mat4();
-        let m_t = m.transpose();
+        var m_r = new mat4();
+        var m_t = m.transpose();
 
         m_r.rows[0].x = this.rows[0].dot(m_t.rows[0]);
         m_r.rows[0].y = this.rows[0].dot(m_t.rows[1]);
@@ -96,7 +139,7 @@ class mat4
 
     static translate(x, y, z)
     {
-        let m = new mat4();
+        var m = new mat4();
         m.rows[0].w = x;
         m.rows[1].w = y;
         m.rows[2].w = z;
@@ -105,8 +148,8 @@ class mat4
 
     static project(aspect_ratio, fov, z_near, z_far)
     {
-        let m = new mat4();
-        let inv_tan_fov = 1.0 / Math.tan(fov);
+        var m = new mat4();
+        var inv_tan_fov = 1.0 / Math.tan(fov);
         m.rows[0].x = inv_tan_fov / aspect_ratio;
         m.rows[1].y = inv_tan_fov;
         m.rows[2].z = z_far / (z_far - z_near);
@@ -117,8 +160,8 @@ class mat4
     }
 }
 
-let graph_callback_array = [];
-let graph_animation_frame_requested = false;
+var graph_callback_array = [];
+var graph_animation_frame_requested = false;
 
 class graph_context
 {
@@ -153,7 +196,7 @@ function initialize_graph_context(canvas_id)
 
 function render_graphs()
 {
-    for (let i = 0; i < graph_callback_array.length; i++)
+    for (var i = 0; i < graph_callback_array.length; i++)
     {
         graph_callback_array[i][0](graph_callback_array[i][1].context);
     }

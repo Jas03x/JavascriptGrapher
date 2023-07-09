@@ -1,11 +1,11 @@
 
 graph_ctx = initialize_graph_context("canvas");
 
-let z_r = 0.0;
-let radius = 0.5;
-let m_r = new mat4(); // rotation matrix
-let m_t = mat4.translate(0.0, 0.0, 5.0); // translation matrix
-let m_p = mat4.project(graph_ctx.width / graph_ctx.height, Math.PI / 4.0, 0.10, 10.0); // projection matrix
+var z_r = 0.0;
+var radius = 0.5;
+var m_r = new mat4(); // rotation matrix
+var m_t = mat4.translate(0.0, 0.0, 5.0); // translation matrix
+var m_p = mat4.project(graph_ctx.width / graph_ctx.height, Math.PI / 4.0, 0.10, 10.0); // projection matrix
 
 const vertex_array = [
     new vec3(-radius, -radius, +radius),
@@ -18,7 +18,7 @@ const vertex_array = [
     new vec3(-radius, +radius, -radius)
 ];
 
-let vertex_buffer = Array(vertex_array.length);
+var vertex_buffer = Array(vertex_array.length);
 
 on_draw = (ctx) =>
 {
@@ -27,10 +27,10 @@ on_draw = (ctx) =>
     m_r.rows[2].x = -Math.sin(z_r);
     m_r.rows[2].z =  Math.cos(z_r);
 
-    let m = m_t.mul(m_r);
+    var m = m_t.mul(m_r);
     m = m_p.mul(m);
 
-    for (let i = 0; i < vertex_buffer.length; i++)
+    for (var i = 0; i < vertex_buffer.length; i++)
     {
         vertex_buffer[i] = m.dot(new vec4(vertex_array[i].x, vertex_array[i].y, vertex_array[i].z, 1.0));
 
