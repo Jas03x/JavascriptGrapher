@@ -201,10 +201,10 @@ class mat4
         var up = vec3.normalize(side.cross(fwd)); // up vector
         
         m.rows = [
-            new vec4(side.x, up.x, fwd.x, 0.0),
-            new vec4(side.y, up.y, fwd.y, 0.0),
-            new vec4(side.z, up.z, fwd.z, 0.0),
-            new vec4(-side.dot(p), -up.dot(p), fwd.dot(p), 1.0)
+            new vec4(side.x, side.y, side.z, -side.dot(p)),
+            new vec4(up.x, up.y, up.z, -up.dot(p)),
+            new vec4(fwd.x, fwd.y, fwd.z, fwd.dot(p)),
+            new vec4(0, 0, 0, 1)
         ];
 
         console.log(m);
