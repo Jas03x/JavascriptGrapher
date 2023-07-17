@@ -17,6 +17,13 @@ class vec2
         return Math.sqrt((this.x * this.x) + (this.y * this.y));
     }
 
+    mul(s)
+    {
+        this.x *= s;
+        this.y *= s;
+        return this;
+    }
+
     static normalize(v)
     {
         var f = 1.0 / v.length();
@@ -38,15 +45,32 @@ class vec3
         return (this.x * v.x) + (this.y * v.y) + (this.z * v.z);
     }
 
+    cross(v)
+    {
+        return new vec3(
+            this.y*v.z - this.z*v.y,
+            -this.x*v.z + this.z*v.x,
+            this.x*v.y - this.y*v.x
+        );
+    }
+
     length()
     {
         return Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
     }
 
+    mul(s)
+    {
+        this.x *= s;
+        this.y *= s;
+        this.z *= s;
+        return this;
+    }
+
     static normalize(v)
     {
         var f = 1.0 / v.length();
-        return new vec2(v.x * f, v.y * f, v.z * f);
+        return new vec3(v.x * f, v.y * f, v.z * f);
     }
 }
 
@@ -68,6 +92,15 @@ class vec4
     length()
     {
         return Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z) + (this.w * this.w));
+    }
+
+    mul(s)
+    {
+        this.x *= s;
+        this.y *= s;
+        this.z *= s;
+        this.w *= s;
+        return this;
     }
 
     static normalize(v)
@@ -158,6 +191,35 @@ class mat4
         m.rows[3].w = 0.0;
         return m;
     }
+
+    static view(p, t, u) // position, target, up
+    {
+        var m = new mat4(1.0);
+
+        var fwd = vec3.normalize(new vec3(t.x - p.x, t.y - p.y, t.z - p.z)); // forward vector
+        var side = vec3.normalize(fwd.cross(u)); // side vector
+        var up = vec3.normalize(side.cross(fwd)); // up vector
+        
+        m.rows = [
+            new vec4(side.x, up.x, fwd.x, 0.0),
+            new vec4(side.y, up.y, fwd.y, 0.0),
+            new vec4(side.z, up.z, fwd.z, 0.0),
+            new vec4(-side.dot(p), -up.dot(p), fwd.dot(p), 1.0)
+        ];
+
+        console.log(m);
+
+        return m;
+    }
+}
+
+class line
+{
+    constructor(v0, v1)
+    {
+        this.v0 = v0;
+        this.v1 = v1;
+    }
 }
 
 var graph_callback_array = [];
@@ -202,4 +264,24 @@ function render_graphs()
     }
 
     window.requestAnimationFrame(render_graphs);
+}
+
+function draw_line(ctx, m, line)
+{
+    var v0 = m.dot(new vec4(line.v0.x, line.v0.y, line.v0.z, 1.0));
+    var v1 = m.dot(new vec4(line.v1.x, line.v1.y, line.v1.z, 1.0));
+
+    v0 = v0.mul(1.0 / v0.w);
+    v1 = v1.mul(1.0 / v1.w);
+    
+    v0.x = (v0.x + 1.0) * 0.5 * canvas.width;
+    v0.y = (v0.y + 1.0) * 0.5 * canvas.height;
+
+    v1.x = (v1.x + 1.0) * 0.5 * canvas.width;
+    v1.y = (v1.y + 1.0) * 0.5 * canvas.height;
+
+    ctx.beginPath();
+    ctx.moveTo(v0.x ,v0.y);
+    ctx.lineTo(v1.x ,v1.y);
+    ctx.stroke();
 }
