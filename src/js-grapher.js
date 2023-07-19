@@ -19,9 +19,7 @@ class vec2
 
     mul(s)
     {
-        this.x *= s;
-        this.y *= s;
-        return this;
+        return new vec3(this.x*s, this.y*s);
     }
 
     static normalize(v)
@@ -54,6 +52,11 @@ class vec3
         );
     }
 
+    add(v)
+    {
+        return new vec3(this.x + v.x, this.y + v.y, this.z + v.z);
+    }
+
     length()
     {
         return Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z));
@@ -61,10 +64,7 @@ class vec3
 
     mul(s)
     {
-        this.x *= s;
-        this.y *= s;
-        this.z *= s;
-        return this;
+        return new vec3(this.x*s, this.y*s, this.z*s);
     }
 
     static normalize(v)
@@ -96,11 +96,7 @@ class vec4
 
     mul(s)
     {
-        this.x *= s;
-        this.y *= s;
-        this.z *= s;
-        this.w *= s;
-        return this;
+        return new vec3(this.x*s, this.y*s, this.z*s, this.w*s);
     }
 
     static normalize(v)
@@ -179,6 +175,15 @@ class mat4
         return m;
     }
 
+    static scale(s)
+    {
+        var m = new mat4();
+        m.rows[0].x = s;
+        m.rows[1].y = s;
+        m.rows[2].z = s;
+        return m;
+    }
+
     static project(aspect_ratio, fov, z_near, z_far)
     {
         var m = new mat4();
@@ -206,8 +211,6 @@ class mat4
             new vec4(fwd.x, fwd.y, fwd.z, fwd.dot(p)),
             new vec4(0, 0, 0, 1)
         ];
-
-        console.log(m);
 
         return m;
     }
